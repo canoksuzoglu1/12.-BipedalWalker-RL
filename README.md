@@ -10,7 +10,8 @@ This project trains an agent using **Proximal Policy Optimization (PPO)** in the
 2. [Environment Setup: make_env()](#environment-setup-make_env)
 3. [Results and Evaluation](#results-and-evaluation)
 4. [Improvements](#improvements)
-5. [Credits](#credits)
+5. [Requirements](#requirements)
+6. [Credits](#credits)
 
 ## 0. About Bipedal Walker
 The **Bipedal Walker** environment simulates a bipedal robot, focusing on balance and coordination across uneven terrain.
@@ -49,5 +50,15 @@ Suggestions for improving agent performance:
 - Adjust learning rate and reward structure.
 - Increase exploration and training duration.
 
-## 5. Credits
+## 5. Requirements
+
+The project uses several libraries that can be installed via `pip` using a `requirements.txt` file.
+
+To install the dependencies, run:
+
+```bash
+pip install -r requirements.txt
+```
+
+## 6. Credits
 Developed by Oleg Klimov. Adapted for PPO training.
