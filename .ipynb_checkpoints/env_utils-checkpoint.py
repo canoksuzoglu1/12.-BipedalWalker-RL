@@ -123,7 +123,10 @@
     "            obs = env.reset()\n",
     "\n",
     "    # İşlem bittiğinde ortamı kapat\n",
-    "    env.close()"
+    "    env.close()\n",
+    "\n",
+    "# Fonksiyonu çağırmak için\n",
+    "run_bipedal_walker(steps=1000)"
    ]
   }
  ],
