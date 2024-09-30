@@ -8,6 +8,8 @@ This project focuses on training an agent using **Proximal Policy Optimization (
 2. [Training Process](#training-process)
     - Normal and Hardcore modes with PPO
 3. [Environment Setup](#environment-setup)
+    - 3.1 make_env()
+    - 3.2 observe_model()
 4. [Model Evaluation](#model-evaluation)
 5. [Training Logs and Analysis](#training-logs-and-analysis)
 6. [Improvements](#improvements)
@@ -48,15 +50,50 @@ The training uses Stable Baselines3's PPO algorithm and runs with vectorized env
 
 ## 3. Environment Setup
 
-The environment is set up using the `make_env()` function from the **env_utils.py** script. Key features include:
+The environment is set up using two key functions from the **env_utils.py** script:
 
-- **Hardcore Mode**: Toggle between normal and hardcore versions of Bipedal Walker.
-- **Vectorized Training**: Utilizes `DummyVecEnv` for parallel processing.
-- **Reward Normalization**: Normalizes both observations and rewards to stabilize training.
-- **Frame Stacking**: Provides the agent with temporal information by stacking the last `n` frames.
-- **Video Recording**: Optionally records every 1000 steps to track the agent’s performance.
-- **Monitor**: Logs metrics like rewards and episode lengths to help analyze training performance.
+### 3.1 make_env()
 
+The `make_env()` function prepares the environment for training and evaluation with several configurable options:
+
+- **Environment Creation**: By default, the environment created is `BipedalWalker-v3`. However, you can enable the hardcore mode by passing `hardcore=True` to switch to `BipedalWalkerHardcore-v3`.
+  
+- **Render Mode**: The environment can be rendered in different modes, such as 'human' for real-time visualization or 'rgb_array' for video recording.
+
+- **Video Recording**: If `record_video=True` is set, the environment records every 1000 steps and saves the recordings in the specified folder.
+
+- **Monitor**: The environment can be wrapped with a monitor to log performance metrics such as rewards and episode lengths. These logs are useful for analyzing the training process later.
+
+- **Vectorized Operations**: To speed up training, `DummyVecEnv` is used to enable parallel processing of multiple environment instances.
+
+- **Observation & Reward Normalization**: The environment is wrapped with `VecNormalize` to stabilize training by normalizing both observations and rewards. This helps the agent learn more effectively.
+
+- **Frame Stacking**: The last `n` frames (by default, 4) can be stacked using `VecFrameStack`, providing the agent with temporal context, which is crucial for environments like Bipedal Walker that require an understanding of movement dynamics over time.
+
+- **Clip Observations**: You can clip observations to avoid outliers during training by setting `clip_obs` to a certain value (default: 10.0).
+
+### Example Usage:
+
+```python
+env = make_env(env_name="BipedalWalker-v3", hardcore=True, record_video=True, use_monitor=True)
+```
+
+### 3.2 observe_model()
+
+The observe_model() function loads a trained PPO model and evaluates it in the specified environment. It automatically checks if VecNormalize and VecFrameStack were used during training and applies them accordingly.
+
+- **Model Loading:** The trained model is loaded from the specified file path.
+
+- **Environment Setup:** Depending on whether hardcore mode is enabled, the environment BipedalWalker-v3 or BipedalWalkerHardcore-v3 is selected.
+- **VecNormalize & VecFrameStack:** If these wrappers were used during training, they are applied to the evaluation environment to ensure consistent behavior.
+- **Evaluation:** The model is evaluated over a specified number of episodes, and the mean and standard deviation of the rewards are returned.
+
+### Example Usage:
+```python
+mean_reward, std_reward = observe_model(model_path='models/ppo_bipedalwalker_1M', n_eval_episodes=5, hardcore=False)
+```
+
+This setup ensures that the environment is optimized for both training and evaluation, providing flexibility with advanced features like video recording, reward normalization, and frame stacking.
 ## 4. Model Evaluation
 
 Model evaluation is performed across multiple episodes using the `observe_model()` function, which loads the trained model and runs it in human-render mode for visualization.
@@ -66,6 +103,7 @@ Model evaluation is performed across multiple episodes using the `observe_model(
 - **Normal Mode**: `Average reward: 248.39 ± 112.10`
 - **Hardcore Mode (3M)**: `Average reward: -28.23 ± 24.82`
 - **Hardcore Mode (5M)**: `Average reward: -10.66 ± 3.91`
+- **Hardcore Mode (7M)**: `Average reward: -5.45 ± 2.10`
 
 These results show that the agent performs relatively well in the normal environment but struggles in the hardcore version, where further training or parameter tuning may be needed.
 
